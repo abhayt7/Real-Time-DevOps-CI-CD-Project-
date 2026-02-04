@@ -3,13 +3,11 @@ pipeline {
 
   tools {
     maven 'maven3'
-    jdk 'java11'   // Make sure this matches the JDK configured in Jenkins
+    jdk 'java11'
   }
 
   environment {
     IMAGE_NAME = "abhayt7/studentapp"
-    JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
-    PATH = "$JAVA_HOME/bin:$PATH"
   }
 
   stages {
@@ -22,7 +20,7 @@ pipeline {
 
     stage('Build') {
       steps {
-        dir('app') {  // Move into app folder
+        dir('app') {
           sh 'mvn clean package'
         }
       }
@@ -31,17 +29,23 @@ pipeline {
     stage('SonarQube Analysis') {
       steps {
         withSonarQubeEnv('sonar') {
-          dir('app') {  // Run Sonar inside app folder
+          dir('app') {
             sh 'mvn sonar:sonar -Dsonar.projectKey=real-time-devops-project'
           }
         }
       }
     }
 
-    stage('Docker Build') {
+    stage('Docker Build & Push') {
       steps {
-        dir('app') {  // Dockerfile is inside app folder
-          sh 'docker build -t $IMAGE_NAME:latest .'
+        dir('app') {
+          withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+            sh '''
+              docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+              docker build -t $IMAGE_NAME:latest .
+              docker push $IMAGE_NAME:latest
+            '''
+          }
         }
       }
     }
@@ -49,11 +53,7 @@ pipeline {
   }
 
   post {
-    success {
-      echo "Pipeline SUCCESS ✅"
-    }
-    failure {
-      echo "Pipeline FAILED ❌"
-    }
+    success { echo "Pipeline SUCCESS ✅" }
+    failure { echo "Pipeline FAILED ❌" }
   }
 }
