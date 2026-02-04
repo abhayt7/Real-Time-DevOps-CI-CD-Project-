@@ -3,46 +3,57 @@ pipeline {
 
   tools {
     maven 'maven3'
+    jdk 'java11'   // Make sure this matches the JDK configured in Jenkins
   }
 
   environment {
     IMAGE_NAME = "abhayt7/studentapp"
+    JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
+    PATH = "$JAVA_HOME/bin:$PATH"
   }
 
   stages {
 
-   stage('Checkout') {
-    steps {
+    stage('Checkout') {
+      steps {
         git branch: 'main', url: 'https://github.com/abhayt7/Real-Time-DevOps-CI-CD-Project-.git'
+      }
     }
-}
-
 
     stage('Build') {
       steps {
-        sh 'cd app && mvn clean package'
+        dir('app') {  // Move into app folder
+          sh 'mvn clean package'
+        }
       }
     }
 
     stage('SonarQube Analysis') {
       steps {
         withSonarQubeEnv('sonar') {
-          sh '''
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-            export PATH=$JAVA_HOME/bin:$PATH
-            java -version
-            cd app
-            mvn sonar:sonar -Dsonar.projectKey=real-time-devops-project
-          '''
+          dir('app') {  // Run Sonar inside app folder
+            sh 'mvn sonar:sonar -Dsonar.projectKey=real-time-devops-project'
+          }
         }
       }
     }
 
     stage('Docker Build') {
       steps {
-        sh 'docker build -t $IMAGE_NAME:latest .'
+        dir('app') {  // Dockerfile is inside app folder
+          sh 'docker build -t $IMAGE_NAME:latest .'
+        }
       }
     }
 
+  }
+
+  post {
+    success {
+      echo "Pipeline SUCCESS ✅"
+    }
+    failure {
+      echo "Pipeline FAILED ❌"
+    }
   }
 }
