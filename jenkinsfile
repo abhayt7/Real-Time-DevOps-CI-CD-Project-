@@ -11,11 +11,12 @@ pipeline {
 
   stages {
 
-    stage('Checkout') {
-      steps {
-        git 'https://github.com/abhayt7/Real-Time-DevOps-CI-CD-Project-.git'
-      }
+   stage('Checkout') {
+    steps {
+        git branch: 'main', url: 'https://github.com/abhayt7/Real-Time-DevOps-CI-CD-Project-.git'
     }
+}
+
 
     stage('Build') {
       steps {
