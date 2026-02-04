@@ -13,7 +13,7 @@ pipeline {
 
     stage('Checkout') {
       steps {
-        git 'https://github.com/abhayt7/real-time-devops-project.git'
+        git 'https://github.com/abhayt7/Real-Time-DevOps-CI-CD-Project-.git'
       }
     }
 
