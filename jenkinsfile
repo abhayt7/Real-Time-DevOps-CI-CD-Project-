@@ -1,0 +1,34 @@
+pipeline {
+  agent any
+
+  tools {
+    maven 'maven3'
+  }
+
+  environment {
+    IMAGE_NAME = "studentapp"
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        git 'https://github.com/abhayt7/real-time-devops-project.git'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'cd app && mvn clean package'
+      }
+    }
+
+    stage('Docker Build') {
+      steps {
+        sh 'docker build -t $IMAGE_NAME .'
+      }
+    }
+
+  }
+}
+
