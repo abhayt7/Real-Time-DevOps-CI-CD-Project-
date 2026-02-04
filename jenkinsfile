@@ -1,35 +1,32 @@
 pipeline {
-   agent { label 'slave' }
+    agent { label 'slave' }
 
-
-  tools {
-    maven 'maven3'
-  }
-
-  environment {
-    IMAGE_NAME = "studentapp"
-  }
-
-  stages {
-
-    //stage('Checkout') {
-      //steps {
-        //git 'https://github.com/abhayt7/Real-Time-DevOps-CI-CD-Project-.git'
-      //}
-    //}
-
-    stage('Build') {
-      steps {
-        sh 'cd app && mvn clean package'
-      }
+    tools {
+        maven 'maven3'
     }
 
-    stage('Docker Build') {
-      steps {
-        sh 'docker build -t $IMAGE_NAME .'
-      }
+    environment {
+        IMAGE_NAME = "studentapp"
     }
 
-  }
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/abhayt7/Real-Time-DevOps-CI-CD-Project-.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'cd app && mvn clean package'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'cd app && docker build -t $IMAGE_NAME .'
+            }
+        }
+    }
 }
-
