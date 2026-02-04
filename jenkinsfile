@@ -3,7 +3,6 @@ pipeline {
 
   tools {
     maven 'maven3'
-    jdk 'java11'
   }
 
   environment {
@@ -28,6 +27,9 @@ pipeline {
       steps {
         withSonarQubeEnv('sonar') {
           sh '''
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+            export PATH=$JAVA_HOME/bin:$PATH
+            java -version
             cd app
             mvn sonar:sonar -Dsonar.projectKey=real-time-devops-project
           '''
