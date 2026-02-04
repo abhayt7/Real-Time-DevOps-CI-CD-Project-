@@ -1,10 +1,10 @@
 pipeline {
-    agent { label 'slave' }  // Run on your node-1 slave
+    agent { label 'slave' }  // Run on node-1 slave
 
     environment {
         IMAGE_NAME = "abhayt7/studentapp"
-        JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"  // Path on slave
-        PATH = "$JAVA_HOME/bin:$PATH:/opt/maven/bin"       // Include Maven path
+        JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
+        PATH = "$JAVA_HOME/bin:$PATH:/opt/maven/bin"
     }
 
     stages {
@@ -35,14 +35,16 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:latest .'  // Run from repo root where Dockerfile exists
+                dir('app') { // Run Docker build inside app folder
+                    sh 'docker build -t $IMAGE_NAME:latest .'
+                }
             }
         }
 
-    } // end stages
+    }
 
     post {
         success { echo "Pipeline SUCCESS ✅" }
         failure { echo "Pipeline FAILED ❌" }
     }
-} // end pipeline
+}
