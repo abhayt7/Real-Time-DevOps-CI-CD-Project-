@@ -1,29 +1,45 @@
 pipeline {
-    agent { label 'slave' }
+  agent any
 
-    tools {
-        maven 'maven3'
-    }
+  tools {
+    maven 'maven3'
+    jdk 'java11'
+  }
 
-    environment {
-        DOCKER_USER = "abhayt7"
-        IMAGE_NAME  = "studentapp"
-        IMAGE_TAG   = "latest"
-    }
+  environment {
+    IMAGE_NAME = "abhayt7/studentapp"
+  }
 
-    stages {
+  stages {
 
-        stage('Build') {
-            steps {
-                sh 'cd app && mvn clean package'
-            }
-        }
-
-       stage('Docker Build') {
-         steps {
-              sh 'cd app && docker build -t abhayt7/studentapp:latest .'
-       }
+    stage('Checkout') {
+      steps {
+        git 'https://github.com/abhayt7/Real-Time-DevOps-CI-CD-Project-.git'
       }
-
     }
+
+    stage('Build') {
+      steps {
+        sh 'cd app && mvn clean package'
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      steps {
+        withSonarQubeEnv('sonar') {
+          sh '''
+            cd app
+            mvn sonar:sonar -Dsonar.projectKey=real-time-devops-project
+          '''
+        }
+      }
+    }
+
+    stage('Docker Build') {
+      steps {
+        sh 'docker build -t $IMAGE_NAME:latest .'
+      }
+    }
+
+  }
 }
