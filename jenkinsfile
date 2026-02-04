@@ -34,17 +34,15 @@ pipeline {
         }
 
         stage('Docker Build') {
-             steps {
-                    sh 'docker build -t $IMAGE_NAME:latest .'  // Run from repo root where Dockerfile exists
-               }
+            steps {
+                sh 'docker build -t $IMAGE_NAME:latest .'  // Run from repo root where Dockerfile exists
             }
-
         }
 
-    }
+    } // end stages
 
     post {
         success { echo "Pipeline SUCCESS ✅" }
         failure { echo "Pipeline FAILED ❌" }
     }
-}
+} // end pipeline
